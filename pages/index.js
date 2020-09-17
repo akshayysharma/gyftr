@@ -2,8 +2,9 @@ import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import Categories from "../component/Categories";
 import Product from "../component/product/Product";
+import fetch from "isomorphic-unfetch";
 
-export default function Home() {
+function Home({ setCategories, setProduct }) {
   return (
     <div className={styles.container}>
       <Head>
@@ -18,9 +19,27 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <Categories />
-        <Product />
+        <Categories categories={setCategories} />
+        <Product product={setProduct} />
       </main>
     </div>
   );
 }
+
+Home.getInitialProps = async () => {
+  const res = await fetch(
+    "https://testing.pogo91.com/api/online-store/category/?store_prefix=cake-shop"
+  );
+  const categories = await res.json();
+  const setCategories = categories.category;
+
+  const res1 = await fetch(
+    "https://testing.pogo91.com/api/online-store/category/product/?store_prefix=cake-shop&page=1&category_id=0"
+  );
+  const product = await res1.json();
+  const setProduct = product.products;
+
+  return { setCategories, setProduct };
+};
+
+export default Home;
